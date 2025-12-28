@@ -123,7 +123,8 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             bucket = body["bucket"]
             key = body["key"]
             etag = body.get("etag")
-        except Exception:
+        except Exception as e:
+            print("ERROR getting S3 object:", repr(e))
             errors += 1
             continue
 
@@ -151,7 +152,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             obj = s3.get_object(Bucket=bucket, Key=key)
             img_bytes = obj["Body"].read()
             content_len = obj.get("ContentLength", len(img_bytes))
-        except Exception:
+        except Exception as e:
             print("ERROR getting S3 object:", repr(e))
             errors += 1
             continue
@@ -161,7 +162,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             width, height = img.size
             fmt = (img.format or "").upper()
             exif_data = _safe_exif_dict(img)
-        except Exception:
+        except Exception as e:
             print("ERROR getting S3 object:", repr(e))
             errors += 1
             continue
@@ -185,7 +186,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 ContentType="application/json",
             )
             processed += 1
-        except Exception:
+        except Exception as e:
             print("ERROR getting S3 object:", repr(e))
             errors += 1
             continue
