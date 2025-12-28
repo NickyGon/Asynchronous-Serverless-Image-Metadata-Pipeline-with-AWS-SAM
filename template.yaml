@@ -14,7 +14,7 @@ Resources:
   ImagesBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub images-${AWS::AccountId}-${AWS::Region}
+      BucketName: !Sub images-${AWS::AccountId}-${AWS::Region}-${AWS::StackName}
   
   ProcessingQueue:
     Type: AWS::SQS::Queue
