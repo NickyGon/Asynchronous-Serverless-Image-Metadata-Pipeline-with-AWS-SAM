@@ -51,20 +51,24 @@ def ingest_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             bucket = record["s3"]["bucket"]["name"]
             key = unquote_plus(record["s3"]["object"]["key"])
             etag = record["s3"]["object"].get("eTag") or record["s3"]["object"].get("etag")
+            print("INGEST EVENT:", {"bucket": bucket, "key": key, "etag": etag})
         except Exception:
             skipped += 1
             continue
 
         if not key.startswith(input_prefix):
+            print("SKIP: wrong prefix", key)
             skipped += 1
             continue
 
         if not _is_allowed_image_key(key):
+            print("SKIP: not allowed extension", key)
             skipped += 1
             continue
 
         body = {"bucket": bucket, "key": key, "etag": etag}
         sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(body))
+        print("SENT TO SQS:", body)
         sent += 1
 
     return {"statusCode": 200, "sent": sent, "skipped": skipped}
