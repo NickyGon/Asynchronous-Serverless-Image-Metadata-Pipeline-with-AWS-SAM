@@ -138,8 +138,10 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         print("OUT_KEY:", out_key)
 
         # Idempotency: if output exists, do not reprocess
+        print("CHECK EXISTS:", {"bucket": bucket, "out_key": out_key})
         try:
             s3.head_object(Bucket=bucket, Key=out_key)
+            print("SKIP: output already exists:", out_key)
             skipped += 1
             continue
         except s3.exceptions.ClientError as e:
@@ -185,6 +187,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 Body=json.dumps(metadata, indent=2, sort_keys=True).encode("utf-8"),
                 ContentType="application/json",
             )
+            print("WROTE:", out_key)
             processed += 1
         except Exception as e:
             print("ERROR getting S3 object:", repr(e))
