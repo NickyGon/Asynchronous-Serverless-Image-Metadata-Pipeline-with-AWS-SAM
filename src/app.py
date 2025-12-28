@@ -146,6 +146,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             continue
         except s3.exceptions.ClientError as e:
             code = e.response.get("Error", {}).get("Code", "")
+            print("HEAD missing (expected):", code)
             if code not in ("404", "NoSuchKey", "NotFound"):
                 errors += 1
                 continue
