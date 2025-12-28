@@ -115,6 +115,8 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     skipped = 0
     errors = 0
 
+    print("SQS Records:", len(event.get("Records", []) or []))
+
     for record in event.get("Records", []) or []:
         try:
             body = json.loads(record.get("body", "{}"))
@@ -130,6 +132,9 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             continue
 
         out_key = _build_metadata_key(key, input_prefix=input_prefix, output_prefix=output_prefix)
+
+        print("MSG:", body)
+        print("OUT_KEY:", out_key)
 
         # Idempotency: if output exists, do not reprocess
         try:
@@ -147,6 +152,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             img_bytes = obj["Body"].read()
             content_len = obj.get("ContentLength", len(img_bytes))
         except Exception:
+            print("ERROR getting S3 object:", repr(e))
             errors += 1
             continue
 
@@ -156,6 +162,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             fmt = (img.format or "").upper()
             exif_data = _safe_exif_dict(img)
         except Exception:
+            print("ERROR getting S3 object:", repr(e))
             errors += 1
             continue
 
@@ -179,6 +186,7 @@ def metadata_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             processed += 1
         except Exception:
+            print("ERROR getting S3 object:", repr(e))
             errors += 1
             continue
 
