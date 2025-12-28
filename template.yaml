@@ -56,7 +56,7 @@ Resources:
           OUTPUT_PREFIX: metadata/
       Policies:
         - S3CrudPolicy:
-            BucketName: !Sub images-${AWS::AccountId}-${AWS::Region}
+            BucketName: !Ref ImagesBucket
         - SQSPollerPolicy:
             QueueName: !GetAtt ProcessingQueue.QueueName
       Events:
